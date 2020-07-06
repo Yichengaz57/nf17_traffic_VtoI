@@ -1,0 +1,166 @@
+@startuml BDDV2I
+' note "Tous les attributs sont non nulls" as N1
+package "occurences" #DDDDDD {
+occurence <|-- Alertes_meteos
+occurence <|-- Accidents
+occurence <|-- travaux_routiers
+occurence <|-- detection_materiel_controle_routier
+}
+
+package "Véhicules" #DDDDDD {
+Vehicule <|-- camion
+Vehicule <|-- voiture
+Vehicule<|-- pompier
+Vehicule<|-- police
+Vehicule<|-- SAMU
+Vehicule <|-- moto
+
+voiture "*" -"*" camion : < transporter
+}
+
+package "Commune_Station_de_base" #DDDDDD {
+
+Commune "1" - "1" Station_de_base : > est_liée_de
+
+Station_de_base "*" - "*" Station_de_base
+(Station_de_base , Station_de_base) .. info_ItoI
+}
+
+
+abstract Class Vehicule{
+{field} num_de_imma :VARCHAR {clef}
+{field} marque : VARCHAR
+{field} modele : VARCHAR
+{field} annee_de_produciton : ENTIER
+{method} 
+}
+
+class voiture{
+
+}
+Class camion{
+{field} capacite_max : ENTIER
+}
+
+class police{
+
+}
+class pompier{
+
+}
+class SAMU{
+
+}
+
+Class moto{
+{field} capacite_moteur : ENTIER
+}
+
+Class Station_de_base{
+{field} id_I : VARCHAR
+{field} longitude : VARCHAR
+{field} latitude : VARCHAR
+{method} 
+}
+note top: {longitude,latitude} clé candidate
+
+Class Commune{
+{field} nom : VARCHAR
+{field} code_postal : ENTIER
+{method} 
+}
+note top: {nom,code_postal} clé primaire
+
+Class info_ItoI{
+{field} 
+{method} 
+}
+Class info_ItoV{
+{field} 
+{method} 
+}
+Class info_VtoI{
+{field} latitude :VARCHAR 
+{field} longitude :VARCHAR 
+{field} annee_de_production :ENTIER 
+{field} marque_V :VARCHAR 
+{field} modele_V :VARCHAR 
+{field} modele_C :VARCHAR 
+{field} num_serie_C :VARCHAR 
+{method} 
+}
+
+
+Station_de_base "*" - "*" Vehicule
+(Station_de_base , Vehicule) .. info_ItoV
+
+Vehicule "*" - "*" Station_de_base
+(Vehicule , Station_de_base) .. info_VtoI
+
+Class Capteur{
+{field} modele :VARCHAR 
+{field} num_de_serie :VARCHAR 
+{method} 
+}
+note top: {modele,num_de_serie} clé primaire
+
+Station_de_base"1" - "1..*" Capteur : > installerS
+
+Vehicule"1" - "0..*" Capteur : > installerV
+
+abstract Class occurence{
+{field} temps_reel:VARCHAR 
+{method} 
+}
+Class Alertes_meteos{
+{field} temps: {pluie, neige, brouillard}
+{field} temperature : ENTIER
+{method} 
+}
+Class Accidents{
+{field} gravite: {petit, moyen, grave}
+{field} nombre_vehicule: ENTIER
+{field} type_vehicule[2..*]: VARCHAR
+{method} 
+}
+
+Class travaux_routiers{
+{field} longitude:VARCHAR 
+{field} latitude:VARCHAR 
+{method} 
+}
+Class detection_materiel_controle_routier{
+{field} longitude:VARCHAR 
+{field} latitude:VARCHAR 
+{field} survitesse : BOOLEAN
+{field} griller_feurouge : BOOLEAN
+{method} 
+}
+
+Capteur"*" - "*" occurence : > détecter
+
+Class evenement{
+{field} temps_reel:VARCHAR (clé)
+{field} identifiant_S:VARCHAR 
+{field} num_de_imma: VARCHAR
+{field} type_echange : {Alertes_meteos,Accidents,travaux_routiers,detextion_materiel_controle_routier}
+{field} longitude_tr : VARCHAR
+{field} latitude_tr : VARCHAR
+{field} longitude_dmcr : VARCHAR
+{field} latitude_dmcr : VARCHAR
+{field} survitess : BOOLEAN
+{field} griller_feurouge BOOLEAN
+{field} temps VARCHAR  {'pluie', 'neige', 'brouillard'}
+{field} temperature INTEGER
+{field} gravite VARCHAR {'petit','moyen','grave'}
+{field} nombre_vehicule INTEGER
+{field} type_vehicule VARCHAR
+{method} 
+}
+
+evenement"*" -- "1" Commune : > avoir lieu
+
+note top: {longitude,latitude} clé candidate
+info_VtoI"1" - "1" evenement: > VtoI_produit 
+info_ItoV"1" - "1" evenement: > ItoV_produit 
+@enduml
